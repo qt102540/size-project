@@ -1,0 +1,391 @@
+/* 실물 크기 비교 — 화이트 + 블랙 + 핫핑크, 라이트 단일 테마.
+   구조는 얇은 검정 선으로만 만든다. 둥근 카드·그림자·면 채움을 쓰지 않는다.
+   색은 전부 :root 토큰으로만 정의한다. */
+:root {
+  --paper:      #FFFFFF;
+  --ink:        #000000;
+  --ink-2:      #4D4D4D;
+  --ink-3:      #767676;   /* 가장 작은 보조 글자. 흰 바탕 4.7:1 */
+  --rule:       #000000;
+  --rule-soft:  #D8D8D8;
+
+  --hot:        #FF0080;   /* 선·도형·블러 */
+  --hot-ink:    #D6006B;   /* 작은 글자용. #FF0080은 흰 바탕에서 대비가 모자람 */
+
+  --grid-line:  rgba(0, 0, 0, 0.035);
+  --sil-fill:   #F0F0F0;   /* 기준 물건 면 — 옅은 회색 */
+  --sil-line:   #111111;   /* 기준 물건 외곽선·내부 디테일 */
+
+  /* UI 전체의 기본 글꼴. Arial 계열에는 한글 글리프가 없으므로
+     Noto Sans KR이 한글을 받아 준다 (웹폰트로 함께 불러온다). */
+  --ui:   "Arial Unicode MS", Arial, Helvetica, "Noto Sans KR", sans-serif;
+  /* 워드마크는 글꼴이 아니라 SVG dot 도형이다. 글꼴 토큰은 --ui 하나뿐 */
+
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html, body { height: 100%; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 12px;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+/* ── 틀 — 콘텐츠를 화면 가장자리로 민다 ───────────────────────── */
+.frame {
+  position: relative;
+  z-index: 1;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 30px 0;
+}
+
+/* ── 상단 ─────────────────────────────────────────────────── */
+.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-top: 2px;
+  gap: 24px;
+  margin-bottom: 66px;
+}
+/* 워드마크 size! — 직접 그린 획의 외곽선을 작은 점으로 따라 찍은 레터링.
+   SVG라서 글꼴 유무와 무관하게 모든 환경에서 점 위치가 똑같다.
+   면 채움도, 이어진 선도 쓰지 않는다. 부제는 두지 않는다. */
+.mark {
+  margin: 0;
+  line-height: 0;        /* SVG 아래 생기는 글줄 여백을 없앤다 */
+}
+.mark-svg {
+  display: block;
+  height: clamp(40px, 3.6vw, 50px);   /* 점이 작아진 만큼 표시 크기를 키운다 */
+  width: auto;
+}
+.mark-svg circle { fill: var(--ink); }
+/* ! 아래의 큰 원 하나 — 치수를 찍는 측정점이자 유일한 색 포인트.
+   stroke·glow·shadow·gradient 없이 단색 원이다 */
+.mark-svg .wm-hot { fill: var(--hot); }
+.meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-family: var(--ui);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-2);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ── 작업 영역 ────────────────────────────────────────────── */
+.work {
+  flex: 1;
+  display: flex;
+  align-items: center;          /* 위아래 빈 공간을 콘텐츠 둘레로 돌린다 */
+  gap: 56px;
+  padding-bottom: 46px;
+}
+.canvas-area { flex: 1 1 auto; min-width: 0; }
+
+.canvas { position: relative; }
+.measure { position: absolute; left: 0; right: 0; top: 0; height: 0; }
+
+/* 격자 — 같은 축척임을 받쳐 주는 보조 장치. 눈에 띄면 안 된다 */
+.grid {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-position: left bottom;
+  border-bottom: 1px solid var(--ink);   /* 공통 바닥선 */
+  pointer-events: none;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;           /* 왼쪽 정렬 — 오른쪽을 비운다 */
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-height: 60px;
+}
+.col { position: relative; flex: 0 0 auto; }
+.inner { display: flex; flex-direction: column; align-items: center; }
+.plot { display: flex; align-items: flex-end; justify-content: center; position: relative; width: 100%; }
+
+/* 내 물건 — 얇은 핫핑크 점선. 면은 채우지 않는다 */
+.box {
+  border: 1px dashed var(--hot);
+  background: transparent;
+}
+/* 기준 물건 — 옅은 회색 면 + 얇은 검정 외곽선.
+   획의 바깥 절반은 뷰포트가 잘라내므로 칠해지는 범위는 정확히 w × h다 */
+.shape { display: block; overflow: hidden; }
+.shape .sil-fill { fill: var(--sil-fill); stroke: none; }
+.shape .sil-line { fill: none; stroke: var(--sil-line); stroke-width: 1.6; stroke-linejoin: round; }
+
+/* ── 치수선 — 내 물건에만 ─────────────────────────────────── */
+.dim b {
+  font-family: var(--ui);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--hot-ink);
+  font-variant-numeric: tabular-nums;
+  background: var(--paper);
+  white-space: nowrap;
+}
+.dim i { position: absolute; background: var(--hot); }
+
+.dim-v { position: absolute; left: -28px; bottom: 0; width: 26px; }
+.dim-v::before {
+  content: ""; position: absolute; right: 5px; top: 0; bottom: 0;
+  border-left: 1px solid var(--hot);
+}
+.dim-v i { right: 0; width: 11px; height: 1px; }
+.dim-v i:first-child { top: 0; }
+.dim-v i:last-of-type { bottom: 0; }
+.dim-v b {
+  position: absolute; left: 6px; top: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  padding: 0 3px;
+}
+
+.dim-h { position: relative; height: 20px; margin-top: 8px; display: block; }
+.dim-h::before {
+  content: ""; position: absolute; top: 9px; left: 0; right: 0;
+  border-top: 1px solid var(--hot);
+}
+.dim-h i { top: 4px; width: 1px; height: 11px; }
+.dim-h i:first-child { left: 0; }
+.dim-h i:last-of-type { right: 0; }
+.dim-h b {
+  position: absolute; top: 11px; left: 50%;
+  transform: translateX(-50%);
+  padding: 0 4px;
+}
+
+.cap { text-align: center; padding: 11px 0 0; width: 100%; }
+.col.reference .cap { padding-top: 39px; }
+.cap-name {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.col.subject .cap-name { color: var(--hot-ink); }
+
+/* ── 자 ──────────────────────────────────────────────────── */
+.ruler {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 26px;
+  font-family: var(--ui);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-2);
+}
+.ruler-bar {
+  display: inline-block; height: 6px;
+  border: 1px solid var(--ink); border-top: 0;
+  position: relative;
+}
+.ruler-bar::after {
+  content: ""; position: absolute; left: 50%; top: 0; bottom: 0;
+  border-left: 1px solid var(--ink);
+}
+
+/* ── 결과 패널 ───────────────────────────────────────────── */
+.spec { flex: 0 0 262px; padding-top: 4px; }
+
+.headline { margin-bottom: 18px; }
+.headline-num {
+  display: block;
+  font-family: var(--ui);
+  font-size: 44px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.headline-lab {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--ui);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--ink-2);
+}
+
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--rule);
+}
+.spec-table th, .spec-table td {
+  border-bottom: 1px solid var(--rule-soft);
+  padding: 8px 0;
+  text-align: left;
+  font-weight: 400;
+  vertical-align: baseline;
+}
+.spec-table th {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  white-space: nowrap;
+  padding-right: 10px;
+}
+.spec-table td {
+  font-family: var(--ui);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.spec-table tr.is-subject th,
+.spec-table tr.is-subject td { color: var(--hot-ink); }
+.spec-table tr.ratio td { font-size: 15px; }
+.spec-table tr:last-child th, .spec-table tr:last-child td { border-bottom: 1px solid var(--rule); }
+
+.basis {
+  margin: 14px 0 0;
+  font-size: 9.5px;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+}
+
+/* ── 하단 조작 바 — 셀이 맞붙은 표 ─────────────────────────── */
+.controls {
+  display: flex;
+  align-items: stretch;
+  border-top: 1px solid var(--rule);
+  margin: 0 -30px;
+  padding: 0 30px;
+}
+.cell {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 18px 15px;
+  border-left: 1px solid var(--rule-soft);
+  min-width: 0;
+}
+.cell:first-child { border-left: 0; padding-left: 0; }
+.cell-refs { flex: 1 1 auto; align-items: flex-start; padding-top: 12px; }
+
+.k {
+  font-family: var(--ui);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.k.tilt {
+  display: inline-block;
+  transform: rotate(-0.5deg);
+  border: 1px solid var(--rule-soft);
+  padding: 3px 6px;
+  color: var(--ink);
+  margin-top: 1px;
+}
+.cell input {
+  width: 68px;
+  font-family: var(--ui);
+  font-size: 19px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  border-radius: 0;
+  padding: 1px 2px 3px;
+  text-align: right;
+  -moz-appearance: textfield;
+}
+.cell input::-webkit-outer-spin-button,
+.cell input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.cell .u {
+  font-family: var(--ui);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+}
+input:focus-visible { outline: 2px solid var(--hot); outline-offset: 3px; }
+
+/* ── 기준 물건 태그 ───────────────────────────────────────── */
+.chips {
+  border: 0; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 5px;
+  min-width: 0;
+}
+.chip { display: block; cursor: pointer; }
+.chip input {
+  position: absolute; width: 1px; height: 1px;
+  opacity: 0; pointer-events: none;
+}
+.chip-face {
+  display: flex; flex-direction: column; gap: 1px;
+  border: 1px solid var(--rule-soft);
+  padding: 4px 7px 3px;
+  background: var(--paper);
+}
+.chip-name { font-size: 9.5px; letter-spacing: 0.02em; color: var(--ink-2); white-space: nowrap; }
+.chip-size {
+  font-family: var(--ui);
+  font-size: 8px;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.chip:hover .chip-face { border-color: var(--ink); }
+.chip input:checked + .chip-face {
+  border-color: var(--ink);
+  box-shadow: inset 0 -2px 0 var(--hot);
+}
+.chip input:checked + .chip-face .chip-name { color: var(--ink); }
+.chip input:checked + .chip-face .chip-size { color: var(--ink-2); }
+.chip input:focus-visible + .chip-face { outline: 2px solid var(--hot); outline-offset: 2px; }
+
+/* ── 좁은 화면 ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .work { gap: 34px; }
+  .spec { flex-basis: 212px; }
+  .headline-num { font-size: 36px; }
+}
+
+@media (max-width: 760px) {
+  .frame { padding: 20px 18px 0; }
+  .top { margin-bottom: 38px; }
+  .meta { font-size: 8.5px; }
+  /* 도형은 계속 왼쪽 정렬. 결과 표만 캔버스 아래로 내린다 */
+  .work { flex-direction: column; align-items: stretch; gap: 30px; padding-bottom: 34px; }
+  .spec { flex: 1 1 auto; max-width: 420px; }
+  .headline-num { font-size: 38px; }
+  .controls { margin: 0 -18px; padding: 0 18px; flex-wrap: wrap; }
+  .cell { padding: 11px 14px 13px; }
+  .cell-refs { flex-basis: 100%; border-left: 0; padding-left: 0; border-top: 1px solid var(--rule-soft); }
+  .cell input { width: 60px; font-size: 17px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

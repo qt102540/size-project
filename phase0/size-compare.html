@@ -1,0 +1,624 @@
+<title>크기 비교 도감</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* 레이아웃: 상단 입력 바 → 전폭 도면 무대(접지선·치수선·축척 막대) → 배율 카드 + 로그 스케일 띠 */
+:root{
+  --paper:#ECEFEB;
+  --surface:#FBFCFA;
+  --ink:#1B2320;
+  --ink-2:#5A6560;
+  --rule:#C0C8C1;
+  --rule-soft:#DADFD8;
+  --accent:#C6421F;
+  --accent-soft:#F2DCD4; --tile-fill:rgba(198,66,31,.13);
+  --grid:rgba(27,35,32,.055);
+  --sans:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:"IBM Plex Mono","IBM Plex Sans KR",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#131715; --surface:#1A201D; --ink:#E6EBE6; --ink-2:#9AA69F;
+  --rule:#3B4541; --rule-soft:#2A322E; --accent:#FF7A4D; --accent-soft:#3A251E; --tile-fill:rgba(255,122,77,.16);
+  --grid:rgba(230,235,230,.05); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#131715; --surface:#1A201D; --ink:#E6EBE6; --ink-2:#9AA69F;
+  --rule:#3B4541; --rule-soft:#2A322E; --accent:#FF7A4D; --accent-soft:#3A251E; --tile-fill:rgba(255,122,77,.16);
+  --grid:rgba(230,235,230,.05); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:15px; line-height:1.55;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px;padding-block:28px 56px}
+h1,h2,h3{margin:0;text-wrap:balance;font-weight:600;letter-spacing:-.015em}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* 머리 */
+header{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 20px;margin-bottom:22px}
+h1{font-size:clamp(26px,4.4vw,38px);line-height:1.1}
+.sub{color:var(--ink-2);font-size:14px;max-width:46ch}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);display:block;margin-bottom:6px}
+
+/* 입력 */
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:16px}
+.inputbar{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+input[type=number],select{
+  font-family:var(--mono);font-size:19px;color:var(--ink);background:transparent;
+  border:1px solid var(--rule);border-radius:3px;padding:9px 11px;min-width:0;
+}
+input[type=number]{width:150px;font-weight:500}
+select{font-size:17px;padding:11px 10px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;flex:1 1 320px;padding-bottom:5px}
+.chip{
+  font-family:var(--mono);font-size:12px;color:var(--ink-2);background:transparent;
+  border:1px solid var(--rule-soft);border-radius:99px;padding:5px 11px;cursor:pointer;
+}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chips .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);align-self:center;margin-right:2px}
+#ref{font-family:var(--sans);font-size:15px;max-width:230px}
+
+/* 한 줄 결론 */
+.verdict{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin:22px 2px 0;
+  font-size:clamp(17px,2.3vw,22px);line-height:1.4;font-weight:500;text-wrap:balance}
+.verdict .num{font-family:var(--mono);font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+.verdict .dim{font-family:var(--mono);font-size:13px;color:var(--ink-2);font-weight:400}
+.copybtn{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-2);background:transparent;
+  border:1px solid var(--rule-soft);border-radius:99px;padding:4px 11px;cursor:pointer;white-space:nowrap}
+.copybtn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* 무대 */
+.stagebox{position:relative;margin-top:22px;background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:20px 16px 0}
+.stagehead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}
+.stagehead h2{font-size:15px}
+.stagehead .note{font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+.stage{display:flex;align-items:flex-end;justify-content:flex-start;gap:var(--gap);overflow-x:auto;padding-bottom:2px}
+.cell{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;min-width:var(--minc,104px);
+  cursor:pointer;background:none;border:0;padding:0;color:inherit;font:inherit}
+.stage>.cell:first-child{margin-left:auto}
+.stage>.cell:last-child{margin-right:auto}
+.cell[disabled]{cursor:default}
+.plot{display:flex;align-items:flex-end;justify-content:center;position:relative;padding-left:var(--padl,0)}
+.art{color:var(--ink);display:block}
+.cell:hover .art{color:var(--accent)}
+.cell.me .art{color:var(--accent)}
+.ghost{border:1.6px dashed var(--accent);background:var(--accent-soft);border-radius:2px}
+/* 치수선 */
+.dimh{position:relative;height:22px;margin-top:7px;width:100%}
+.dimh::before{content:"";position:absolute;top:10px;left:0;right:0;border-top:1px solid var(--rule)}
+.dimh i{position:absolute;top:3px;width:1px;height:15px;background:var(--rule)}
+.dimh i:first-of-type{left:0}.dimh i:last-of-type{right:0}
+.dimh b{position:absolute;top:12px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;
+  font-weight:600;color:var(--accent);white-space:nowrap;background:var(--surface);padding:0 4px}
+.dimv{position:absolute;left:0;bottom:0;width:26px}
+.dimv::before{content:"";position:absolute;right:4px;top:0;bottom:0;border-left:1px solid var(--rule)}
+.dimv i{position:absolute;right:0;width:13px;height:1px;background:var(--rule)}
+.dimv i:first-of-type{top:0}.dimv i:last-of-type{bottom:0}
+.dimv b{position:absolute;left:7px;top:50%;transform:translate(-50%,-50%) rotate(-90deg);transform-origin:center;
+  font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink-2);white-space:nowrap;background:var(--surface);padding:0 3px}
+.me .dimh::before,.me .dimh i,.me .dimv::before,.me .dimv i{border-color:var(--accent);background:var(--accent)}
+.me .dimh::before{border-top-color:var(--accent)}
+.me .dimv::before{border-left-color:var(--accent)}
+.me .dimv b,.me .cap .val{color:var(--accent)}
+.ground{border-top:1px solid var(--rule);margin:0 -16px;position:relative}
+.cap{text-align:center;padding:9px 2px 16px;max-width:190px}
+.cap .nm{font-size:13px;font-weight:600;line-height:1.3}
+.cap .val{display:block;font-family:var(--mono);font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums;margin-top:2px}
+.cap .sb{display:block;font-size:11px;color:var(--ink-2);margin-top:1px}
+.scalebar{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;color:var(--ink-2);padding:10px 0 14px}
+.scalebar .bar{height:7px;border:1px solid var(--rule);border-top:0;position:relative}
+.scalebar .bar::after{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:1px solid var(--rule)}
+
+/* 안에 넣어 보기 */
+.nestbox{margin-top:22px;background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:18px 16px 16px}
+.nest-line{margin:8px 0 18px;font-size:clamp(16px,2.1vw,21px);line-height:1.45;font-weight:500;text-wrap:balance}
+.nest-line b{color:var(--accent);font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums}
+.nest-line .q{font-family:var(--mono);font-size:1.18em;font-weight:600;color:var(--accent)}
+.nest-wrap{width:100%}
+.nest-stage{position:relative;margin:0 auto}
+.nest-bg{position:absolute;left:0;bottom:0;color:var(--ink);opacity:.6;display:block}
+.tile{position:absolute;border:1px dashed var(--accent);background:var(--tile-fill);border-radius:2px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10px;color:var(--accent);overflow:hidden}
+.tile.part{opacity:.4}
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:12px;
+  font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend .sw{width:16px;height:11px;border:1px dashed var(--accent);background:var(--accent-soft);border-radius:2px}
+.legend .sw2{width:16px;height:11px;border:1px solid var(--ink);opacity:.42;border-radius:2px}
+.nest-sub{margin-top:20px;border-top:1px dashed var(--rule-soft);padding-top:16px}
+.sub-line{font-size:15px;margin:0 0 10px;line-height:1.45}
+.sub-line b{color:var(--accent);font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums}
+.sub-strip{position:relative;border:1.4px dashed var(--accent);background:var(--accent-soft);border-radius:3px;overflow:hidden}
+.sub-strip svg{display:block;color:var(--ink)}
+.rot{position:relative;display:inline-block}
+
+footer{margin-top:24px;font-size:12px;color:var(--ink-2);line-height:1.7;max-width:70ch}
+
+@media (max-width:760px){
+  input[type=number]{width:100%}
+  .field{flex:1 1 120px}
+  .chips{flex-basis:100%;padding-bottom:0;margin-top:4px}
+  .cap{max-width:96px}
+  .cap .nm{font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div style="flex:1 1 320px;min-width:0">
+      <span class="eyebrow">Scale Reference</span>
+      <h1>크기 비교 도감</h1>
+    </div>
+    <p class="sub" style="flex:1 1 260px">숫자만 넣으면 그만한 크기의 익숙한 물건을 찾아서, 같은 축척으로 나란히 그려 줍니다.</p>
+  </header>
+
+  <div class="panel">
+    <div class="inputbar">
+      <div class="field">
+        <label for="val">길이 / 높이</label>
+        <input id="val" type="number" value="174" min="0" step="any" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="unit">단위</label>
+        <select id="unit">
+          <option value="1">mm</option>
+          <option value="10" selected>cm</option>
+          <option value="1000">m</option>
+          <option value="1000000">km</option>
+          <option value="25.4">인치</option>
+          <option value="304.8">피트</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="ref">비교 대상</label>
+        <select id="ref"><option value="">자동 추천</option></select>
+      </div>
+      <div class="chips" id="chips"><span class="lbl">예시</span></div>
+    </div>
+  </div>
+
+  <p class="verdict" id="verdict"></p>
+
+  <section class="stagebox">
+    <div class="stagehead">
+      <h2 id="stageTitle">같은 축척으로 나란히</h2>
+      <span class="note" id="stageNote"></span>
+    </div>
+    <div class="stage" id="stage"></div>
+    <div class="ground"></div>
+    <div class="scalebar"><span id="scaleLabel"></span><span class="bar" id="scaleBar"></span></div>
+  </section>
+
+  <section class="nestbox" id="nestbox">
+    <div class="stagehead">
+      <h2>큰 것 안에 넣어 보기</h2>
+      <span class="note" id="nestNote"></span>
+    </div>
+    <p class="nest-line" id="nestLine"></p>
+    <div class="nest-wrap" id="nestWrap"><div class="nest-stage" id="nestStage"></div></div>
+    <div class="legend" id="nestLegend"></div>
+    <div class="nest-sub" id="nestSub"></div>
+  </section>
+
+  <footer>
+    치수선은 비교에 쓴 대표 치수(길이 또는 높이)입니다. 수치는 널리 쓰이는 대표값이며 모델·품종에 따라 달라집니다. 신용카드 85.6mm, A4 297mm는 ISO 규격, 만원 지폐 148mm는 한국은행 규격값입니다.
+  </footer>
+</div>
+
+<script>
+/* ---------- 기준 물건 데이터: mm = 비교에 쓰는 대표 치수, ax = 그 치수가 가로(w)인지 세로(h)인지 ---------- */
+var O = [
+{n:"적혈구",s:"지름",mm:0.0075,ax:"w",vb:"0 0 100 100",g:'<circle class="o" cx="50" cy="50" r="47"/><circle class="o" cx="50" cy="50" r="20"/>'},
+{n:"머리카락",s:"굵기",mm:0.07,ax:"w",vb:"0 0 6 42",g:'<path class="o" d="M1 0 C0.3 12 1.8 30 1 42"/><path class="o" d="M5 0 C4.3 12 5.8 30 5 42"/>'},
+{n:"고운 모래알",s:"지름",mm:0.3,ax:"w",vb:"0 0 100 86",g:'<path class="o" d="M50 3 L93 31 L77 81 L23 83 L7 33 Z"/>'},
+{n:"꿀벌",s:"몸길이",mm:13,ax:"w",vb:"0 0 140 78",g:'<ellipse class="o" cx="58" cy="52" rx="52" ry="24"/><path class="o" d="M46 31 V73 M66 30 V74 M86 34 V70"/><circle class="o" cx="122" cy="48" r="15"/><path class="o" d="M131 37 L139 25"/><path class="o" d="M44 31 C34 9 70 5 76 27 M62 31 C58 11 92 9 94 27"/>'},
+{n:"참깨",s:"길이",mm:3,ax:"w",vb:"0 0 100 64",g:'<ellipse class="o" cx="50" cy="32" rx="48" ry="30"/><path class="o" d="M50 3 C28 14 28 50 50 61"/>'},
+{n:"쌀 한 톨",s:"길이",mm:5,ax:"w",vb:"0 0 100 36",g:'<ellipse class="o" cx="50" cy="18" rx="48" ry="16"/><path class="o" d="M18 11 C38 6 70 8 84 15"/>'},
+{n:"개미",s:"몸길이",mm:5.5,ax:"w",vb:"0 0 154 74",g:'<ellipse class="o" cx="40" cy="38" rx="38" ry="24"/><ellipse class="o" cx="96" cy="38" rx="20" ry="15"/><circle class="o" cx="130" cy="34" r="17"/><path class="o" d="M92 30 L80 6 M100 32 L104 4 M84 46 L74 70 M100 46 L104 70 M112 30 L120 8 M112 46 L118 68"/><path class="o" d="M142 22 L152 6 M144 44 L152 56"/>'},
+{n:"500원 동전",s:"지름",mm:26.5,ax:"w",vb:"0 0 100 100",g:'<circle class="o" cx="50" cy="50" r="47"/><circle class="o" cx="50" cy="50" r="39"/><path class="o" d="M50 22 C40 34 40 50 50 62 C60 50 60 34 50 22 Z"/><path class="o" d="M36 68 H64"/>'},
+{n:"골프공",s:"지름",mm:42.67,ax:"w",vb:"0 0 100 100",g:'<circle class="o" cx="50" cy="50" r="47"/><circle class="o" cx="36" cy="33" r="6"/><circle class="o" cx="58" cy="29" r="6"/><circle class="o" cx="71" cy="49" r="6"/><circle class="o" cx="48" cy="52" r="6"/><circle class="o" cx="29" cy="57" r="6"/><circle class="o" cx="58" cy="71" r="6"/>'},
+{n:"AA 건전지",s:"길이",mm:50.5,ax:"h",vb:"0 0 40 101",g:'<rect class="o" x="2" y="7" width="36" height="92" rx="4"/><rect class="o" x="14" y="1" width="12" height="6" rx="2"/><path class="o" d="M2 30 H38 M2 78 H38"/><path class="o" d="M14 18 H26 M20 12 V24"/>'},
+{n:"야구공",s:"지름",mm:73,ax:"w",vb:"0 0 100 100",g:'<circle class="o" cx="50" cy="50" r="47"/><path class="o" d="M24 10 C42 30 42 70 24 90"/><path class="o" d="M76 10 C58 30 58 70 76 90"/>'},
+{n:"신용카드",s:"긴 변 · ISO 규격",mm:85.6,ax:"w",vb:"0 0 856 540",g:'<rect class="o" x="6" y="6" width="844" height="528" rx="46"/><rect class="o" x="78" y="140" width="132" height="104" rx="16"/><path class="o" d="M78 170 H210 M78 214 H210 M122 140 V244 M166 140 V244"/><path class="o" d="M78 400 H430 M78 462 H300"/><circle class="o" cx="676" cy="404" r="72"/><circle class="o" cx="756" cy="404" r="72"/>'},
+{n:"스마트폰",s:"높이",mm:147.6,ax:"h",vb:"0 0 72 148",g:'<rect class="o" x="1.5" y="1.5" width="69" height="145" rx="10"/><rect class="o" x="6" y="7" width="60" height="134" rx="6"/><path class="o" d="M28 4.5 H44"/>'},
+{n:"머그컵",s:"높이",mm:95,ax:"h",vb:"0 0 118 92",g:'<path class="o" d="M10 6 H86 L78 88 H18 Z"/><path class="o" d="M86 22 C112 22 114 58 86 64"/><path class="o" d="M11 20 H85"/>'},
+{n:"만원 지폐",s:"긴 변",mm:148,ax:"w",vb:"0 0 148 68",g:'<rect class="o" x="2" y="2" width="144" height="64"/><circle class="o" cx="112" cy="34" r="20"/><path class="o" d="M14 16 H72 M14 28 H58 M14 52 H84"/><circle class="o" cx="112" cy="28" r="7"/><path class="o" d="M101 47 C103 38 121 38 123 47"/>'},
+{n:"손 한 뼘",s:"엄지~새끼 · 대략",mm:200,ax:"w",vb:"0 0 200 170",g:'<g fill="none" stroke="currentColor" stroke-linecap="round"><path d="M92 130 L12 108" stroke-width="27"/><path d="M100 118 L60 24" stroke-width="22"/><path d="M109 116 L106 11" stroke-width="22"/><path d="M117 118 L150 28" stroke-width="21"/><path d="M125 124 L186 76" stroke-width="19"/></g><ellipse class="f" cx="110" cy="134" rx="44" ry="33"/>'},
+{n:"운동화",s:"길이 · 270mm",mm:270,ax:"w",vb:"0 0 270 104",g:'<path class="o" d="M6 98 V44 C6 36 14 32 24 34 L62 46 C78 52 88 58 98 66 L150 86 C188 97 230 99 262 97 L262 98 Z"/><path class="o" d="M6 86 H262"/><path class="o" d="M64 48 L84 76 M82 55 L100 80 M100 63 L116 83"/><path class="o" d="M24 34 C42 33 56 39 62 46"/>'},
+{n:"기내용 캐리어",s:"높이 · 20인치",mm:550,ax:"h",vb:"0 0 370 550",g:'<rect class="o" x="16" y="78" width="338" height="422" rx="36"/><path class="o" d="M112 80 V34 M258 80 V34 M102 34 H268"/><path class="o" d="M16 208 H354 M16 368 H354"/><circle class="o" cx="68" cy="524" r="24"/><circle class="o" cx="302" cy="524" r="24"/>'},
+{n:"27인치 모니터",s:"화면 가로",mm:598,ax:"w",vb:"0 0 598 420",g:'<rect class="o" x="4" y="4" width="590" height="334" rx="10"/><rect class="o" x="18" y="18" width="562" height="296"/><path class="o" d="M262 338 H336 L350 398 H248 Z"/><path class="o" d="M190 412 H408"/>'},
+{n:"책상",s:"높이 · 사무용 표준",mm:720,ax:"h",vb:"0 0 1200 720",g:'<rect class="o" x="8" y="8" width="1184" height="54" rx="8"/><path class="o" d="M78 62 V714 M1122 62 V714"/><path class="o" d="M110 120 H1090"/>'},
+{n:"자전거",s:"길이",mm:1700,ax:"w",vb:"0 0 1700 1020",g:'<circle class="o" cx="320" cy="700" r="300"/><circle class="o" cx="1380" cy="700" r="300"/><circle class="o" cx="320" cy="700" r="40"/><circle class="o" cx="1380" cy="700" r="40"/><path class="o" d="M320 700 L760 700 L600 340 L1030 340 L1380 700 M760 700 L1030 340"/><path class="o" d="M600 340 L560 250 M520 245 H640"/><path class="o" d="M1030 340 L1060 190 M980 180 H1140"/><circle class="o" cx="845" cy="700" r="48"/>'},
+{n:"문",s:"높이 · 실내문",mm:2000,ax:"h",vb:"0 0 900 2000",g:'<rect class="o" x="8" y="8" width="884" height="1984"/><rect class="o" x="66" y="66" width="768" height="1872"/><circle class="o" cx="762" cy="1030" r="32"/><path class="o" d="M730 1030 H676"/>'},
+{n:"농구공",s:"지름 · 7호",mm:240,ax:"w",vb:"0 0 100 100",g:'<circle class="o" cx="50" cy="50" r="47"/><path class="o" d="M50 3 V97 M3 50 H97 M16 15 C40 36 40 64 16 85 M84 15 C60 36 60 64 84 85"/>'},
+{n:"A4 용지",s:"긴 변 · ISO 규격",mm:297,ax:"h",vb:"0 0 210 297",g:'<rect class="o" x="3" y="3" width="204" height="291"/><path class="o" d="M30 56 H180 M30 86 H180 M30 116 H180 M30 146 H180 M30 176 H140"/>'},
+{n:"노트북",s:"가로 · 13인치",mm:300,ax:"w",vb:"0 0 300 196",g:'<path class="o" d="M44 8 H256 V134 H44 Z"/><path class="o" d="M52 16 H248 V126 H52 Z"/><path class="o" d="M32 134 H268 L300 184 H0 Z"/><path class="o" d="M126 166 H174"/>'},
+{n:"성인 여성",s:"한국 평균 키",mm:1596,ax:"h",vb:"0 0 42 160",g:'<circle class="f" cx="21" cy="11" r="9.2"/><rect class="f" x="13" y="22" width="16" height="39" rx="7"/><rect class="f" x="6.8" y="24" width="5.6" height="33" rx="2.8" transform="rotate(8 9.6 40)"/><rect class="f" x="29.6" y="24" width="5.6" height="33" rx="2.8" transform="rotate(-8 32.4 40)"/><rect class="f" x="14.3" y="56" width="6.4" height="103" rx="3.2"/><rect class="f" x="21.3" y="56" width="6.4" height="103" rx="3.2"/>'},
+{n:"성인 남성",s:"한국 평균 키",mm:1725,ax:"h",vb:"0 0 44 172",g:'<circle class="f" cx="22" cy="12" r="10"/><rect class="f" x="12.8" y="23.6" width="18.4" height="42" rx="7.6"/><rect class="f" x="6" y="26" width="6.2" height="36" rx="3.1" transform="rotate(8 9.1 44)"/><rect class="f" x="31.8" y="26" width="6.2" height="36" rx="3.1" transform="rotate(-8 34.9 44)"/><rect class="f" x="14.2" y="60" width="7.2" height="111" rx="3.6"/><rect class="f" x="22.6" y="60" width="7.2" height="111" rx="3.6"/>'},
+{n:"냉장고",s:"높이 · 양문형",mm:1800,ax:"h",vb:"0 0 76 180",g:'<rect class="o" x="2" y="2" width="72" height="176" rx="5"/><path class="o" d="M38 2 V178"/><path class="o" d="M30 48 V86 M46 48 V86"/><path class="o" d="M2 62 H74" stroke-dasharray="4 4"/>'},
+{n:"코끼리",s:"어깨 높이",mm:3300,ax:"h",vb:"0 0 480 330",g:'<ellipse class="f" cx="198" cy="158" rx="140" ry="96"/><circle class="f" cx="368" cy="106" r="72"/><ellipse class="f" cx="314" cy="106" rx="50" ry="64"/><path d="M420 140 C450 192 446 254 420 296" fill="none" stroke="currentColor" stroke-width="27" stroke-linecap="round"/><path class="f" d="M398 164 C424 188 436 216 432 244 C416 220 396 194 386 176 Z"/><rect class="f" x="96" y="220" width="46" height="108" rx="20"/><rect class="f" x="160" y="220" width="46" height="108" rx="20"/><rect class="f" x="258" y="220" width="46" height="108" rx="20"/><rect class="f" x="306" y="220" width="46" height="108" rx="20"/><path d="M60 148 C40 146 34 162 40 176" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>'},
+{n:"아반떼",s:"전장",mm:4650,ax:"w",vb:"0 0 465 143",g:'<path class="o" d="M8 110 C8 86 28 80 54 78 L126 26 C152 10 216 8 268 12 L350 34 L428 62 C452 69 458 80 457 110"/><path class="o" d="M8 110 H457"/><circle class="o" cx="112" cy="110" r="30"/><circle class="o" cx="366" cy="110" r="30"/><circle class="o" cx="112" cy="110" r="13"/><circle class="o" cx="366" cy="110" r="13"/><path class="o" d="M136 30 L164 76 H262 V15 M276 16 L336 34 L358 76 H276 Z"/>'},
+{n:"기린",s:"키",mm:5000,ax:"h",vb:"0 0 260 500",g:'<rect class="f" x="70" y="228" width="150" height="94" rx="42"/><rect class="f" x="176" y="58" width="34" height="182" rx="16" transform="rotate(12 193 149)"/><ellipse class="f" cx="220" cy="44" rx="31" ry="18" transform="rotate(-20 220 44)"/><rect class="f" x="82" y="312" width="15" height="184" rx="7"/><rect class="f" x="106" y="312" width="15" height="184" rx="7"/><rect class="f" x="176" y="312" width="15" height="184" rx="7"/><rect class="f" x="197" y="312" width="15" height="184" rx="7"/><path d="M70 240 C46 250 40 276 46 296" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/><path d="M210 30 v-14 M228 28 v-14" stroke="currentColor" stroke-width="7" stroke-linecap="round" fill="none"/>'},
+{n:"시내버스",s:"전장 · 대형",mm:11000,ax:"w",vb:"0 0 1100 320",g:'<rect class="o" x="8" y="14" width="1084" height="238" rx="24"/><path class="o" d="M8 78 H1092 M8 196 H1092"/><path class="o" d="M170 78 V252 M250 78 V252 M620 78 V252 M700 78 V252"/><circle class="o" cx="210" cy="262" r="46"/><circle class="o" cx="880" cy="262" r="46"/>'},
+{n:"전봇대",s:"높이 · 표준 12m",mm:12000,ax:"h",vb:"0 0 150 1200",g:'<path class="o" d="M62 1200 L70 118 H80 L88 1200"/><path class="o" d="M14 232 H136 M26 332 H124"/><circle class="o" cx="22" cy="224" r="7"/><circle class="o" cx="75" cy="224" r="7"/><circle class="o" cx="128" cy="224" r="7"/><path class="o" d="M0 208 C40 214 110 214 150 208 M0 302 C40 308 110 308 150 302"/>'},
+{n:"지하철 1칸",s:"전동차 1량",mm:19500,ax:"w",vb:"0 0 1950 380",g:'<rect class="o" x="20" y="20" width="1910" height="280" rx="30"/><path class="o" d="M20 92 H1930 M20 228 H1930"/><path class="o" d="M300 92 V300 M420 92 V300 M760 92 V300 M880 92 V300 M1220 92 V300 M1340 92 V300 M1680 92 V300 M1800 92 V300"/><rect class="o" x="240" y="300" width="300" height="54" rx="18"/><rect class="o" x="1420" y="300" width="300" height="54" rx="18"/><circle class="o" cx="300" cy="356" r="22"/><circle class="o" cx="480" cy="356" r="22"/><circle class="o" cx="1480" cy="356" r="22"/><circle class="o" cx="1660" cy="356" r="22"/>'},
+{n:"테니스 코트",s:"길이 · 위에서 본 모습",mm:23770,ax:"w",vb:"0 0 2377 1097",g:'<rect class="o" x="6" y="6" width="2365" height="1085"/><path class="o" d="M6 137 H2371 M6 960 H2371"/><path class="o" d="M549 137 V960 M1828 137 V960"/><path class="o" d="M549 548 H1828"/><path class="o" d="M1188 6 V1091" stroke-dasharray="20 16"/>'},
+{n:"대왕고래",s:"몸길이",mm:30000,ax:"w",vb:"0 0 3000 420",g:'<path class="f" d="M300 210 C700 70 1800 62 2680 170 C2810 186 2900 200 2950 212 C2900 230 2810 250 2680 264 C1800 364 700 352 300 232 Z"/><path class="f" d="M300 232 C230 300 120 342 30 372 C100 308 130 262 155 220 C130 178 100 134 30 70 C120 100 230 160 300 210 Z"/><path class="f" d="M1480 262 C1540 306 1620 340 1680 352 C1600 340 1500 316 1452 282 Z"/><circle class="o" cx="2745" cy="206" r="13"/>'},
+{n:"보잉 747",s:"전장 · 위에서 본 모습",mm:70600,ax:"w",vb:"0 0 706 644",g:'<path class="f" d="M668 322 C668 298 600 286 420 282 L120 278 C60 278 26 296 20 322 C26 348 60 366 120 366 L420 362 C600 358 668 346 668 322 Z"/><path class="f" d="M440 284 L305 12 H262 L345 284 Z"/><path class="f" d="M440 360 L305 632 H262 L345 360 Z"/><path class="f" d="M112 280 L46 130 H20 L62 280 Z"/><path class="f" d="M112 364 L46 514 H20 L62 364 Z"/><rect class="f" x="296" y="136" width="56" height="24" rx="11"/><rect class="f" x="330" y="196" width="56" height="24" rx="11"/><rect class="f" x="296" y="484" width="56" height="24" rx="11"/><rect class="f" x="330" y="424" width="56" height="24" rx="11"/>'},
+{n:"축구장",s:"길이 · FIFA 규격",mm:105000,ax:"w",vb:"0 0 1050 680",g:'<rect class="o" x="4" y="4" width="1042" height="672"/><path class="o" d="M525 4 V676"/><circle class="o" cx="525" cy="340" r="92"/><path class="o" d="M4 202 H169 V478 H4 M1046 202 H881 V478 H1046"/><path class="o" d="M4 277 H60 V403 H4 M1046 277 H990 V403 H1046"/><circle class="o" cx="115" cy="340" r="5"/><circle class="o" cx="935" cy="340" r="5"/>'},
+{n:"N서울타워",s:"탑 높이",mm:236700,ax:"h",vb:"0 0 70 237",g:'<path class="o" d="M20 235 L28 96 H42 L50 235"/><path class="o" d="M20 235 H50"/><path class="o" d="M24 96 L16 78 H54 L46 96"/><rect class="o" x="16" y="54" width="38" height="24" rx="4"/><path class="o" d="M26 54 L30 34 H40 L44 54"/><path class="o" d="M35 34 V2"/>'},
+{n:"에펠탑",s:"높이",mm:330000,ax:"h",vb:"0 0 125 330",g:'<path class="o" d="M4 328 C30 240 48 150 56 60 L62 8 L69 60 C77 150 95 240 121 328"/><path class="o" d="M18 252 H107 M36 162 H89 M48 96 H77"/><path class="o" d="M28 292 C44 262 81 262 97 292"/><path class="o" d="M62 8 V2"/><path class="o" d="M4 328 H121"/>'},
+{n:"롯데월드타워",s:"높이",mm:555700,ax:"h",vb:"0 0 110 556",g:'<path class="o" d="M8 554 C14 330 34 150 46 44 L55 2 L64 44 C76 150 96 330 102 554"/><path class="o" d="M21 430 H89 M27 310 H83 M33 200 H77 M39 104 H71"/><path class="o" d="M8 554 H102"/>'},
+{n:"한강대교",s:"다리 길이",mm:1005000,ax:"w",vb:"0 0 1005 150",g:'<path class="o" d="M0 62 H1005 M0 78 H1005"/><path class="o" d="M40 78 C110 18 230 18 300 78 M330 78 C400 18 520 18 590 78 M620 78 C690 18 810 18 880 78"/><path class="o" d="M20 78 V128 M310 78 V128 M600 78 V128 M890 78 V128 M985 78 V128"/><path class="o" d="M0 128 H1005" stroke-dasharray="9 11"/>'},
+{n:"한라산",s:"해발 높이",mm:1947300,ax:"h",vb:"0 0 680 195",g:'<path class="o" d="M2 193 C90 170 180 120 262 50 C300 14 320 4 340 4 C360 4 380 14 418 50 C500 120 590 170 678 193 Z"/><path class="o" d="M304 34 C318 44 362 44 376 34"/><path class="o" d="M272 64 C298 78 382 78 408 64" stroke-dasharray="7 7"/>'},
+{n:"에베레스트",s:"해발 높이",mm:8848860,ax:"h",vb:"0 0 240 88",g:'<path class="o" d="M2 86 C40 76 70 58 96 32 C108 20 116 5 124 5 C132 5 140 21 152 34 C176 60 206 76 238 86 Z"/><path class="o" d="M103 27 L113 37 L122 28 L132 39 L144 29" stroke-dasharray="0"/><path class="o" d="M88 46 C104 54 148 56 166 48" stroke-dasharray="6 6"/>'},
+{n:"마라톤",s:"전체 코스",mm:42195000,ax:"w",vb:"0 0 1000 110",g:'<path class="o" d="M30 72 H970" stroke-dasharray="26 18"/><path class="o" d="M30 72 V18 H70 L60 32 L70 46 H30"/><path class="o" d="M970 72 V18 H930 L940 32 L930 46 H970"/><circle class="o" cx="30" cy="80" r="6"/><circle class="o" cx="970" cy="80" r="6"/>'},
+{n:"제주도",s:"동서 길이",mm:73000000,ax:"w",vb:"0 0 730 310",g:'<path class="o" d="M60 168 C120 78 240 38 362 44 C500 50 640 88 692 150 C716 186 680 242 598 268 C478 304 278 310 148 272 C68 248 30 208 60 168 Z"/><path class="o" d="M338 134 L366 92 L394 134 Z"/>'},
+{n:"서울 → 부산",s:"직선 거리",mm:325000000,ax:"w",vb:"0 0 1000 110",g:'<path class="o" d="M70 62 C300 110 700 10 930 62" stroke-dasharray="22 16"/><path class="o" d="M70 98 C70 98 40 58 40 38 A30 30 0 0 1 100 38 C100 58 70 98 70 98 Z"/><circle class="o" cx="70" cy="38" r="11"/><path class="o" d="M930 98 C930 98 900 58 900 38 A30 30 0 0 1 960 38 C960 58 930 98 930 98 Z"/><circle class="o" cx="930" cy="38" r="11"/>'},
+{n:"달",s:"지름",mm:3474000000,ax:"w",vb:"0 0 100 100",g:'<circle class="o" cx="50" cy="50" r="47"/><circle class="o" cx="34" cy="33" r="11"/><circle class="o" cx="63" cy="27" r="6"/><circle class="o" cx="69" cy="58" r="13"/><circle class="o" cx="40" cy="69" r="7"/><circle class="o" cx="24" cy="55" r="4"/>'},
+{n:"지구",s:"지름",mm:12742000000,ax:"w",vb:"0 0 100 100",g:'<circle class="o" cx="50" cy="50" r="47"/><ellipse class="o" cx="50" cy="50" rx="21" ry="47"/><path class="o" d="M5 34 H95 M3 50 H97 M5 66 H95"/><path class="o" d="M22 28 C34 22 44 32 42 42 C40 52 26 50 22 44 Z"/><path class="o" d="M58 56 C70 52 80 60 76 70 C72 80 58 74 56 66 Z"/>'}
+];
+O.sort(function(a,b){return a.mm-b.mm});
+
+var PRESETS=[
+{t:"27인치",v:27,u:25.4},{t:"55cm 캐리어",v:55,u:10},{t:"174cm 키",v:174,u:10},
+{t:"6피트",v:6,u:304.8},{t:"30m",v:30,u:1000},{t:"8,849m",v:8848.86,u:1000}
+];
+
+/* ---------- 숫자 포맷 ---------- */
+function nf(x,d){
+  return x.toLocaleString("ko-KR",{minimumFractionDigits:0,maximumFractionDigits:d===undefined?2:d});
+}
+function sig(x){
+  if(!isFinite(x))return "—";
+  var a=Math.abs(x);
+  if(a===0)return "0";
+  if(a>=1000)return nf(x,0);
+  if(a>=100)return nf(x,1);
+  if(a>=1)return nf(x,2);
+  if(a>=0.01)return nf(x,3);
+  return x.toPrecision(2);
+}
+function fmtMM(mm){
+  var a=Math.abs(mm);
+  if(a<0.1)return sig(mm*1000)+" µm";
+  if(a<10)return sig(mm)+" mm";
+  if(a<1000)return sig(mm/10)+" cm";
+  if(a<1000000)return sig(mm/1000)+" m";
+  return sig(mm/1000000)+" km";
+}
+
+/* ---------- 상태 ---------- */
+var elVal=document.getElementById("val"),elUnit=document.getElementById("unit"),elRef=document.getElementById("ref");
+var MYLABEL="입력한 크기";
+
+function currentMM(){
+  var v=parseFloat(elVal.value);
+  if(!isFinite(v)||v<=0)return null;
+  return v*parseFloat(elUnit.value);
+}
+function currentRef(){
+  var i=elRef.value;
+  return i===""?null:O[parseInt(i,10)];
+}
+/* 받침에 따라 조사 고르기 */
+function josa(w,withBatchim,without){
+  var c=w.charCodeAt(w.length-1);
+  if(c<0xAC00||c>0xD7A3)return without;
+  return (c-0xAC00)%28?withBatchim:without;
+}
+
+/* ---------- 비슷한 크기 고르기 ---------- */
+/* 입력값에서 가까운 순으로 고르되, 무리 전체의 크기 차이가 SPAN배를 넘지 않게 한다.
+   (한 칸에 400배 차이가 섞이면 작은 쪽이 점으로 뭉개진다) */
+var SPAN=12;
+function ratio(it){var vb=it.vb.split(/\s+/);return parseFloat(vb[2])/parseFloat(vb[3])}
+function extent(it){ // 그림이 실제로 차지하는 가장 긴 변(mm)
+  var ar=ratio(it);
+  return it.ax==="h"?Math.max(it.mm,it.mm*ar):Math.max(it.mm,it.mm/ar);
+}
+function pickNeighbors(mm,count,seed){
+  var out=[],lo=mm,hi=mm;
+  if(seed){out.push(seed);lo=Math.min(lo,extent(seed));hi=Math.max(hi,extent(seed))}
+  var scored=O.filter(function(o){return o!==seed})
+    .map(function(o){return {o:o,d:Math.abs(Math.log10(o.mm/mm)),e:extent(o)}});
+  scored.sort(function(a,b){return a.d-b.d});
+  for(var i=0;i<scored.length&&out.length<count;i++){
+    var s=scored[i];
+    var nlo=Math.min(lo,s.e),nhi=Math.max(hi,s.e);
+    if(nhi/nlo<=SPAN||out.length<1){out.push(s.o);lo=nlo;hi=nhi}
+  }
+  out.sort(function(a,b){return a.mm-b.mm});
+  return out;
+}
+
+/* ---------- 도면 무대 ---------- */
+var stage=document.getElementById("stage");
+
+function dims(item){
+  var vb=item.vb.split(/\s+/),vw=parseFloat(vb[2]),vh=parseFloat(vb[3]),ar=vw/vh;
+  if(item.ax==="h")return {w:item.mm*ar,h:item.mm};
+  return {w:item.mm,h:item.mm/ar};
+}
+
+function renderStage(mm,ref){
+  var mobile=window.innerWidth<760;
+  var n=mobile?2:5;
+  var list=pickNeighbors(mm,n,ref).slice();
+  // 주변 물건이 주로 높이로 재는 것들이면 세로 막대로, 길이로 재는 것들이면 가로 막대로 그린다
+  // 가장 비슷한 크기의 물건과 같은 방향으로 그려야 눈으로 바로 견줘진다
+  var closest=list.reduce(function(a,b){
+    return Math.abs(Math.log10(b.mm/mm))<Math.abs(Math.log10(a.mm/mm))?b:a;
+  },list[0]);
+  var tall=closest?closest.ax==="h":false;
+  var me=tall
+    ? {n:MYLABEL,s:"",mm:mm,ax:"h",vb:"0 0 46 120",me:true,
+       g:'<rect class="ghost-r" x="2" y="2" width="42" height="116" rx="3"/>'}
+    : {n:MYLABEL,s:"",mm:mm,ax:"w",vb:"0 0 120 46",me:true,
+       g:'<rect class="ghost-r" x="2" y="2" width="116" height="42" rx="3"/>'};
+  list.push(me);
+  list.sort(function(a,b){return a.mm-b.mm});
+
+  var stageH=mobile?190:286;
+  var gap=mobile?14:26;
+  stage.style.setProperty("--gap",gap+"px");
+  stage.style.setProperty("--minc",(mobile?82:104)+"px");
+  var vcount=list.filter(function(i){return i.ax==="h"}).length;
+  var availW=Math.max(260,stage.clientWidth-gap*(list.length-1)-vcount*34-6);
+
+  var D=list.map(dims);
+  var sumW=D.reduce(function(s,d){return s+d.w},0);
+  var maxH=D.reduce(function(s,d){return Math.max(s,d.h)},0);
+  var scale=Math.min(stageH/maxH,availW/sumW);
+  // 이름표가 그림보다 넓은 칸이 있으므로 칸 최소 너비를 반영해 축척을 한 번 더 조인다
+  var MINC=mobile?82:104;
+  for(var k=0;k<5;k++){
+    var tot=0,flexW=0,fixed=0;
+    for(var j=0;j<D.length;j++){
+      var dw=D[j].w*scale;
+      if(dw<MINC){tot+=MINC;fixed+=MINC}else{tot+=dw;flexW+=D[j].w}
+    }
+    if(tot<=availW||flexW===0)break;
+    scale=Math.max(1e-12,(availW-fixed)/flexW);
+  }
+
+  var plotH=Math.max(96,Math.ceil(maxH*scale)); // 빈 공간이 남지 않게 실제 높이에 맞춘다
+  stage.innerHTML="";
+  list.forEach(function(it,i){
+    var w=Math.max(1.2,D[i].w*scale),h=Math.max(1.2,D[i].h*scale);
+    var cell=document.createElement(it.me?"div":"button");
+    cell.className="cell"+(it.me?" me":"");
+    if(!it.me){cell.type="button";cell.title=it.n+" 크기로 비교하기";}
+    var padl=it.ax==="h"?34:0;
+    var svg='<svg class="art" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" viewBox="'+it.vb+'" preserveAspectRatio="none" aria-hidden="true">'+it.g+'</svg>';
+    var dim=it.ax==="h"
+      ? '<div class="dimv" style="height:'+h.toFixed(1)+'px"><i></i><i></i><b>'+fmtMM(it.mm)+'</b></div>'
+      : '';
+    var dimh=it.ax==="w"
+      ? '<div class="dimh" style="width:'+w.toFixed(1)+'px"><i></i><i></i>'+(it.me?'<b>'+fmtMM(it.mm)+'</b>':'')+'</div>'
+      : '';
+    cell.innerHTML=
+      '<div class="plot" style="--padl:'+padl+'px;height:'+plotH+'px">'+dim+svg+'</div>'+
+      dimh+
+      '<div class="cap"><span class="nm">'+it.n+'</span>'+
+      '<span class="val">'+fmtMM(it.mm)+'</span>'+
+      (it.s?'<span class="sb">'+it.s+'</span>':'')+'</div>';
+    if(!it.me)cell.addEventListener("click",function(){setFromObject(it)});
+    stage.appendChild(cell);
+  });
+
+  // 축척 막대
+  var target=mobile?70:110;
+  var raw=target/scale, e=Math.pow(10,Math.floor(Math.log10(raw))), m=raw/e;
+  var nice=(m<1.5?1:m<3.5?2:m<7.5?5:10)*e;
+  var px=nice*scale;
+  document.getElementById("scaleBar").style.width=px.toFixed(1)+"px";
+  document.getElementById("scaleLabel").textContent="축척 "+fmtMM(nice);
+  var near=list.filter(function(i){return !i.me}).reduce(function(b,i){
+    var r=Math.max(i.mm/mm,mm/i.mm);return r<b?r:b},Infinity);
+  document.getElementById("stageNote").textContent =
+    near>1000 ? "기준 물건 중 가장 가까운 것도 "+sig(near)+"배 차이 납니다"
+              : "왼쪽부터 작은 순 · 누르면 그 크기로 다시 비교";
+}
+
+function setFromObject(o){
+  var mm=o.mm,u,val;
+  if(mm<10){u=1}else if(mm<1000){u=10}else if(mm<1000000){u=1000}else{u=1000000}
+  val=mm/u;
+  elVal.value=parseFloat(val.toPrecision(6));
+  elUnit.value=String(u);
+  update();
+}
+
+/* ---------- 안에 넣어 보기 ---------- */
+var CNT={"신용카드":"장","A4 용지":"장","만원 지폐":"장","성인 남성":"명","성인 여성":"명","아반떼":"대","시내버스":"대",
+  "27인치 모니터":"대","자전거":"대","머그컵":"개","손 한 뼘":"뼘","운동화":"짝","기내용 캐리어":"개","책상":"개","문":"짝",
+  "스마트폰":"대","노트북":"대","보잉 747":"대","지하철 1칸":"칸","쌀 한 톨":"톨","참깨":"알",
+  "고운 모래알":"알","500원 동전":"개","롯데월드타워":"채","냉장고":"대","기타":"대","코끼리":"마리",
+  "기린":"마리","대왕고래":"마리","개미":"마리","꿀벌":"마리"};
+function cnt(n){return CNT[n]||"개"}
+/* 널리 쓰이는 기준은 조금 더 우대해서 고른다 */
+var FAV={"쌀 한 톨":1,"500원 동전":1,"신용카드":1,"만원 지폐":1,"스마트폰":1,"손 한 뼘":1,"운동화":1,"A4 용지":1,
+  "27인치 모니터":1,"기내용 캐리어":1,"책상":1,"문":1,"자전거":1,"성인 여성":1,"성인 남성":1,
+  "냉장고":1,"아반떼":1,"시내버스":1,"지하철 1칸":1,"테니스 코트":1,"축구장":1,"보잉 747":1,
+  "롯데월드타워":1,"에펠탑":1,"한강대교":1,"에베레스트":1,"제주도":1,"서울 → 부산":1,"지구":1};
+var FAVB=0.45;
+function best(cands,mm,inv,axPref){
+  // 비율이 10배쯤 되는 것을 선호 (너무 가까우면 몇 개인지 와닿지 않는다)
+  function key(o){
+    var r=inv?mm/o.mm:o.mm/mm;
+    return Math.abs(Math.log10(r)-1)-(FAV[o.n]?FAVB:0)+(axPref&&o.ax!==axPref?0.12:0);
+  }
+  cands.sort(function(a,b){return key(a)-key(b)});
+  return cands[0];
+}
+function pickContainer(mm){
+  var c=O.filter(function(o){var r=o.mm/mm;return r>=2.4&&r<=60});
+  return c.length?best(c,mm,false,null):null;
+}
+function pickContent(mm){
+  var c=O.filter(function(o){var r=mm/o.mm;return r>=2.4&&r<=60});
+  return c.length?best(c,mm,true,"w"):null;
+}
+function tileGeom(it,S,axis){
+  var d=dims(it),w=d.w*S,h=d.h*S;
+  var svg='<svg width="'+w.toFixed(2)+'" height="'+h.toFixed(2)+'" viewBox="'+it.vb+'" preserveAspectRatio="none" aria-hidden="true">'+it.g+'</svg>';
+  if(it.ax===axis)return {w:w,h:h,html:svg};
+  var W=h,H=w;
+  return {w:W,h:H,html:'<span class="rot" style="width:'+W.toFixed(2)+'px;height:'+H.toFixed(2)+'px">'+
+    '<span style="position:absolute;left:'+((W-w)/2).toFixed(2)+'px;top:'+((H-h)/2).toFixed(2)+'px;transform:rotate(-90deg)">'+svg+'</span></span>'};
+}
+function renderNest(mm,ref){
+  var mobile=window.innerWidth<760;
+  var label=MYLABEL;
+  var C=pickContainer(mm),S=pickContent(mm);
+  // 비교 대상을 직접 골랐고 비율이 보여 줄 만하면 그쪽을 우선한다
+  if(ref){
+    var rr=ref.mm/mm;
+    if(rr>=1.8&&rr<=150)C=ref;
+    else if(rr<=0.56&&rr>=1/150)S=ref;
+  }
+  var stage=document.getElementById("nestStage"),wrap=document.getElementById("nestWrap");
+  var line=document.getElementById("nestLine"),leg=document.getElementById("nestLegend");
+  var sub=document.getElementById("nestSub"),note=document.getElementById("nestNote");
+
+  /* 1) 입력값을 더 큰 물건 안에 채워 넣기 */
+  if(C){
+    var d=dims(C),avail=Math.max(240,wrap.clientWidth),maxCross=mobile?200:330;
+    var sc=Math.min(avail/d.w,maxCross/d.h);
+    var cw=d.w*sc,ch=d.h*sc,r=C.mm/mm,unit=mm*sc;
+    var full=Math.floor(r),frac=r-full,axis=C.ax;
+    var band=Math.max(13,(axis==="w"?ch:cw)*0.26);
+    var h='<svg class="nest-bg" width="'+cw.toFixed(1)+'" height="'+ch.toFixed(1)+'" viewBox="'+C.vb+'" preserveAspectRatio="none" aria-hidden="true">'+C.g+'</svg>';
+    var total=full+(frac>0.06?1:0);
+    for(var i=0;i<total;i++){
+      var len=(i<full?unit:frac*unit),part=i>=full;
+      var num=(!part&&len>=22)?String(i+1):"";
+      h+= axis==="w"
+        ? '<div class="tile'+(part?" part":"")+'" style="left:'+(i*unit).toFixed(1)+'px;top:'+((ch-band)/2).toFixed(1)+'px;width:'+Math.max(1,len-1).toFixed(1)+'px;height:'+band.toFixed(1)+'px">'+num+'</div>'
+        : '<div class="tile'+(part?" part":"")+'" style="bottom:'+(i*unit).toFixed(1)+'px;left:'+((cw-band)/2).toFixed(1)+'px;height:'+Math.max(1,len-1).toFixed(1)+'px;width:'+band.toFixed(1)+'px">'+num+'</div>';
+    }
+    stage.style.width=cw.toFixed(1)+"px";stage.style.height=ch.toFixed(1)+"px";
+    stage.innerHTML=h;wrap.hidden=false;
+    line.innerHTML=C.n+' 하나에 '+label+josa(label,"이","가")+' <span class="q">'+sig(r)+'번</span> 들어갑니다';
+    leg.innerHTML='<span><i class="sw"></i>'+label+' · '+fmtMM(mm)+'</span>'+
+      '<span><i class="sw2"></i>'+C.n+' · '+fmtMM(C.mm)+(C.s?" ("+C.s+")":"")+'</span>';
+    leg.hidden=false;note.textContent=axis==="w"?"가로 방향으로 채운 모습":"아래부터 쌓아 올린 모습";
+  }else{
+    wrap.hidden=true;leg.hidden=true;
+    line.innerHTML='이 크기를 담을 만한 기준 물건이 목록에 없습니다';
+    note.textContent="";
+  }
+
+  /* 2) 반대로, 입력값 안에 더 작은 물건 채우기 */
+  if(S){
+    var sw=Math.max(200,wrap.clientWidth-12),s2=sw/mm,k=mm/S.mm;
+    var t=tileGeom(S,s2,"w");
+    var capH=mobile?92:130;
+    if(t.h>capH){s2*=capH/t.h;sw=mm*s2;t=tileGeom(S,s2,"w")} // 띠가 너무 두꺼워지지 않게
+    var fk=Math.floor(k),fr=k-fk,inner="";
+    for(var j=0;j<fk;j++){
+      inner+='<span style="position:absolute;left:'+(j*t.w).toFixed(2)+'px;bottom:0">'+t.html+'</span>';
+    }
+    if(fr>0.06){
+      inner+='<span style="position:absolute;left:'+(fk*t.w).toFixed(2)+'px;bottom:0;width:'+(fr*t.w).toFixed(2)+
+        'px;height:'+t.h.toFixed(2)+'px;overflow:hidden;opacity:.55"><span style="position:absolute;left:0;bottom:0">'+t.html+'</span></span>';
+    }
+    sub.innerHTML='<p class="sub-line">거꾸로, '+label+' <b>'+fmtMM(mm)+'</b> 안에는 '+
+      S.n+josa(S.n,"이","가")+' <b>'+sig(k)+cnt(S.n)+'</b> 들어갑니다</p>'+
+      '<div class="sub-strip" style="width:'+(sw+10).toFixed(1)+'px;max-width:100%;height:'+(t.h+12).toFixed(1)+'px">'+
+      '<div style="position:absolute;left:5px;bottom:6px;right:5px;top:6px">'+inner+'</div></div>';
+    sub.hidden=false;
+  }else{sub.hidden=true}
+}
+
+/* ---------- 한 줄 결론 ---------- */
+var COPY="";
+function pct(x){return (x>=10?Math.round(x):+sig(x))+"%"}
+function nearestObj(mm){
+  var b=null,bd=Infinity;
+  O.forEach(function(o){
+    var d=Math.abs(Math.log10(o.mm/mm))-(FAV[o.n]?0.07:0);
+    if(d<bd){bd=d;b=o}
+  });
+  return b;
+}
+function renderVerdict(mm,ref){
+  var o=ref||nearestObj(mm),r=mm/o.mm,tailHTML,tailText;
+  if(r>=0.95&&r<=1.05){
+    tailHTML=tailText=o.n+josa(o.n,"과","와")+" 거의 같은 크기입니다";
+  }else if(r>1.05&&r<=1.4){
+    tailHTML=o.n+'보다 조금 큽니다 <span class="num">('+sig(r)+'배)</span>';
+    tailText=o.n+"보다 조금 큽니다 ("+sig(r)+"배)";
+  }else if(r<0.95&&r>=0.72){
+    tailHTML=o.n+'보다 조금 작습니다 <span class="num">('+pct(r*100)+')</span>';
+    tailText=o.n+"보다 조금 작습니다 ("+pct(r*100)+")";
+  }else if(r>1){
+    tailHTML=o.n+'의 <span class="num">'+sig(r)+'배</span>입니다';
+    tailText=o.n+"의 "+sig(r)+"배입니다";
+  }else{
+    tailHTML=o.n+'의 <span class="num">'+pct(r*100)+'</span> 크기입니다';
+    tailText=o.n+"의 "+pct(r*100)+" 크기입니다";
+  }
+  var meta=o.n+" "+fmtMM(o.mm)+(o.s?" · "+o.s:"");
+  document.getElementById("verdict").innerHTML=
+    '<span><span class="num">'+fmtMM(mm)+'</span> — '+tailHTML+
+    ' <span class="dim">'+meta+'</span></span>'+
+    '<button class="copybtn" id="copybtn" type="button">결과 복사</button>';
+  COPY=fmtMM(mm)+" — "+tailText+" ("+meta+")";
+  document.getElementById("copybtn").addEventListener("click",copyResult);
+}
+function copyResult(){
+  var b=document.getElementById("copybtn"),txt=COPY;
+  var done=function(ok){b.textContent=ok?"복사됨":"복사 실패";setTimeout(function(){b.textContent="결과 복사"},1600)};
+  try{
+    navigator.clipboard.writeText(txt).then(function(){done(true)},function(){done(false)});
+  }catch(e){done(false)}
+}
+
+/* ---------- 묶기 ---------- */
+function update(){
+  var mm=currentMM();
+  if(mm===null){
+    document.getElementById("stageNote").textContent="0보다 큰 숫자를 넣어 주세요";
+    return;
+  }
+  var ref=currentRef();
+  renderVerdict(mm,ref);
+  renderStage(mm,ref);
+  renderNest(mm,ref);
+}
+
+var chips=document.getElementById("chips");
+PRESETS.forEach(function(p){
+  var b=document.createElement("button");
+  b.className="chip";b.type="button";b.textContent=p.t;
+  b.addEventListener("click",function(){
+    elVal.value=p.v;elUnit.value=String(p.u);update();
+  });
+  chips.appendChild(b);
+});
+O.forEach(function(o,i){
+  var op=document.createElement("option");
+  op.value=String(i);op.textContent=o.n+" · "+fmtMM(o.mm);
+  elRef.appendChild(op);
+});
+["input","change"].forEach(function(ev){
+  elVal.addEventListener(ev,update);elUnit.addEventListener(ev,update);elRef.addEventListener(ev,update);
+});
+var rt;window.addEventListener("resize",function(){clearTimeout(rt);rt=setTimeout(update,150)});
+update();
+</script>
+<style>
+.o{fill:none;stroke:currentColor;stroke-width:1.7;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.f{fill:currentColor;stroke:none}
+.ghost-r{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6;stroke-dasharray:6 5;vector-effect:non-scaling-stroke}
+</style>
