@@ -62,8 +62,8 @@ body {
   gap: 24px;
   margin-bottom: 66px;
 }
-/* 워드마크 size! — 직접 그린 획의 외곽선을 작은 점으로 따라 찍은 레터링.
-   SVG라서 글꼴 유무와 무관하게 모든 환경에서 점 위치가 똑같다.
+/* 워드마크 SIZE! — 글자 윤곽을 같은 크기·같은 간격의 원형 dot으로만 그린다.
+   SVG라서 글꼴 유무와 무관하게 모든 환경에서 dot 위치가 똑같다.
    면 채움도, 이어진 선도 쓰지 않는다. 부제는 두지 않는다. */
 .mark {
   margin: 0;
@@ -71,11 +71,12 @@ body {
 }
 .mark-svg {
   display: block;
-  height: clamp(40px, 3.6vw, 50px);   /* 점이 작아진 만큼 표시 크기를 키운다 */
+  height: clamp(25px, 2.3vw, 29px);
   width: auto;
 }
 .mark-svg circle { fill: var(--ink); }
-/* ! 아래의 큰 원 하나 — 치수를 찍는 측정점이자 유일한 색 포인트.
+/* ! 아래의 큰 원 하나 — 검정 dot 지름의 2.5배.
+   치수를 찍는 측정점이자 유일한 색 포인트다.
    stroke·glow·shadow·gradient 없이 단색 원이다 */
 .mark-svg .wm-hot { fill: var(--hot); }
 .meta {
