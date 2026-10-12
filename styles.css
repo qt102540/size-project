@@ -132,7 +132,8 @@ body {
 
 /* 내 물건 — 얇은 핫핑크 점선. 면은 채우지 않는다 */
 .box {
-  border: 1px dashed var(--hot);
+  outline: 1px dashed var(--hot);
+  outline-offset: -1px;
   background: transparent;
 }
 /* 기준 물건 — 옅은 회색 면 + 얇은 검정 외곽선.
